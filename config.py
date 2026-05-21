@@ -40,7 +40,7 @@ else:
     VIDEO_SOURCE: Final[str] = "rtsp://192.168.1.10:554/user=admin&password=&channel=1&stream=0.sdp"
 
 # Đường dẫn file video xuất ra sau khi Render xong
-OUTPUT_VIDEO_PATH: Final[str] = str(STORAGE_DIR / "output_hud.mp4")
+OUTPUT_VIDEO_PATH: Final[str] = str(STORAGE_DIR / "output_hud.ts")
 
 # Đường dẫn Font chữ (Tự động đổi theo môi trường Windows/Linux)
 if OPERATION_MODE == "SIMULATION":

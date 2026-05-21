@@ -75,14 +75,22 @@ def render_glass_hud(frame, speed, rpm, throttle, temp, fonts):
     return cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGBA2BGR)
 
 def get_hardware_video_writer(output_path, fps, width, height):
-    """Trình xuất video hỗ trợ Hardware Acceleration cho Orange Pi"""
+    """Trình xuất video hỗ trợ Hardware Acceleration cho Orange Pi (Lưu .TS)"""
+    
+    # Ép đuôi file thành .ts đề phòng biến OUTPUT_VIDEO_PATH trong config quên sửa
+    if not output_path.lower().endswith('.ts'):
+        output_path = output_path.rsplit('.', 1)[0] + '.ts'
+
     if OPERATION_MODE == "PRODUCTION":
-        print("🚀 Kích hoạt mpph264enc (Hardware VPU) cho Rockchip...")
-        gst_str = f"appsrc ! videoconvert ! mpph264enc ! h264parse ! mp4mux ! filesink location={output_path}"
+        print(f"🚀 Kích hoạt mpph264enc (Hardware VPU) & mpegtsmux cho Rockchip...")
+        # THAY ĐỔI QUAN TRỌNG: Thay mp4mux bằng mpegtsmux
+        gst_str = f"appsrc ! videoconvert ! mpph264enc ! h264parse ! mpegtsmux ! filesink location={output_path}"
         return cv2.VideoWriter(gst_str, cv2.CAP_GSTREAMER, 0, fps, (width, height))
     else:
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        return cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+        print(f"💻 Sử dụng Software Encoder xuất file .TS...")
+        # Sử dụng FFMPEG backend và codec mp2t để tương thích chuẩn TS
+        fourcc = cv2.VideoWriter_fourcc(*'mp2t')
+        return cv2.VideoWriter(output_path, cv2.CAP_FFMPEG, fourcc, fps, (width, height))
 
 def main():
     print("🎬 KHỞI ĐỘNG HỆ THỐNG RENDER HUD...")
